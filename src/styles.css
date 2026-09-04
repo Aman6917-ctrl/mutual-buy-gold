@@ -1,0 +1,161 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--forest);
+
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-forest: var(--forest);
+  --color-forest-deep: var(--forest-deep);
+  --color-gold: var(--gold);
+  --color-surface: var(--surface);
+  --color-surface-deep: var(--surface-deep);
+  --color-hairline: var(--hairline);
+  --font-serif: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  --radius: 0.5rem;
+
+  --paper: oklch(0.9673 0.007 88.64);
+  --ink: oklch(0.212 0.0098 145.22);
+  --forest: oklch(0.3484 0.0547 163.36);
+  --forest-deep: oklch(0.2926 0.05 163);
+  --gold: oklch(0.728 0.138 89.73);
+  --surface: oklch(0.9369 0.0124 91.52);
+  --surface-deep: oklch(0.904 0.0183 89.37);
+  --hairline: oklch(0.8829 0.0171 88.01);
+
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: oklch(0.9796 0.0057 84.57);
+  --card-foreground: var(--ink);
+  --popover: oklch(0.9796 0.0057 84.57);
+  --popover-foreground: var(--ink);
+  --primary: var(--forest);
+  --primary-foreground: oklch(0.9796 0.0057 84.57);
+  --secondary: var(--surface);
+  --secondary-foreground: var(--ink);
+  --muted: var(--surface);
+  --muted-foreground: oklch(0.53 0.014 145);
+  --accent: var(--gold);
+  --accent-foreground: var(--ink);
+  --destructive: oklch(0.52 0.16 27);
+  --destructive-foreground: oklch(0.98 0.005 84);
+  --border: var(--hairline);
+  --input: var(--hairline);
+  --ring: var(--forest);
+
+  --shadow-plan: 0 10px 26px -14px oklch(0.3484 0.0547 163.36 / 0.35);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv05", "ss01";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+  }
+}
+
+@utility font-display {
+  font-family: var(--font-serif);
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  letter-spacing: -0.015em;
+}
+
+@utility hairline {
+  border: 1px solid var(--hairline);
+}
+
+@utility shadow-plan {
+  box-shadow: var(--shadow-plan);
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tick-draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@utility hero-rise {
+  animation: hero-rise 0.7s cubic-bezier(0.22, 0.68, 0.32, 1) both;
+}
+
+@utility tick-draw {
+  stroke-dasharray: 120;
+  animation: tick-draw 1.1s ease-out 0.5s both;
+}
+
