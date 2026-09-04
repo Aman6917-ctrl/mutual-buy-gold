@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { inr, type ProductSummary } from "@/lib/api";
+import { inr, mediaUrl, type ProductSummary } from "@/lib/api";
 
 export function ProductCard({
   product,
@@ -17,7 +17,7 @@ export function ProductCard({
     >
       <div className="overflow-hidden rounded-lg bg-surface">
         <img
-          src={product.thumbnail}
+          src={mediaUrl(product.thumbnail)}
           alt={`${product.name} product shot`}
           loading="lazy"
           width={1024}

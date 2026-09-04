@@ -1,7 +1,41 @@
-export const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:5001/api").replace(
-  /\/$/,
-  "",
-);
+const PRODUCTION_API_ORIGIN = "https://onefi-assignment-nzq0.onrender.com";
+
+function normalizeApiBase(raw: string) {
+  const trimmed = raw.replace(/\/$/, "");
+  if (trimmed.endsWith("/api")) return trimmed;
+  return `${trimmed}/api`;
+}
+
+function originFromApiBase(apiBase: string) {
+  return apiBase.replace(/\/api$/, "");
+}
+
+const resolved = (() => {
+  const fromEnv =
+    import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE || "";
+  if (fromEnv) return normalizeApiBase(String(fromEnv));
+  if (import.meta.env.PROD) return `${PRODUCTION_API_ORIGIN}/api`;
+  return "http://localhost:5001/api";
+})();
+
+export const API_BASE = resolved;
+export const API_ORIGIN = originFromApiBase(resolved);
+
+/** Rewrite leftover localhost image URLs so production still loads studio shots. */
+export function mediaUrl(url?: string | null) {
+  if (!url) return "";
+  return url.replace(/https?:\/\/(localhost|127\.0\.0\.1):\d+/g, API_ORIGIN);
+}
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "ApiError";
+  }
+}
 
 export type EMIPlan = {
   tenureMonths: number;
@@ -25,6 +59,7 @@ export type ProductSummary = {
   brand: string;
   thumbnail: string;
   startingPrice: number;
+  startingEmi?: number;
   placement?: "deals" | "hero" | "catalogue";
 };
 
@@ -50,7 +85,9 @@ async function get<T>(path: string): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { Accept: "application/json" },
   });
-  if (!res.ok) throw new Error(`Request failed (${res.status})`);
+  if (!res.ok) {
+    throw new ApiError(res.status, `Request failed (${res.status})`);
+  }
   return (await res.json()) as T;
 }
 
@@ -80,12 +117,14 @@ export const dealsQuery = {
   refetchOnMount: "always" as const,
 };
 
-
 export const productQuery = (slug: string) => ({
   queryKey: ["product", slug] as const,
   queryFn: () => get<Product>(`/products/${slug}`),
   staleTime: 5 * 60_000,
-  retry: 2,
+  retry: (failureCount: number, error: Error) => {
+    if (error instanceof ApiError && error.status === 404) return false;
+    return failureCount < 2;
+  },
 });
 
 export const inr = (n: number) =>

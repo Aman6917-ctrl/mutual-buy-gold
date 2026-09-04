@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { inr, type Deal } from "@/lib/api";
+import { inr, mediaUrl, type Deal } from "@/lib/api";
 
 const SPEED_PX_PER_SEC = 38;
 
@@ -169,7 +169,7 @@ export function DealsCarousel({ deals }: { deals: Deal[] }) {
             >
               <div className="relative overflow-hidden rounded-lg bg-surface">
                 <img
-                  src={d.thumbnail}
+                  src={mediaUrl(d.thumbnail)}
                   alt={`${d.name} product shot`}
                   draggable={false}
                   loading="lazy"

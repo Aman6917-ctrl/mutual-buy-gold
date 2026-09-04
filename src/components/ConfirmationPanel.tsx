@@ -17,6 +17,11 @@ export function ConfirmationPanel({
     ["Variant", variantLabel],
     ["Monthly amount", inr(plan.monthlyAmount)],
     ["Tenure", `${plan.tenureMonths} months`],
+    [
+      "Interest",
+      plan.interestRate === 0 ? "No interest" : `${plan.interestRate}% p.a.`,
+    ],
+    ["Cashback", plan.cashback ? inr(plan.cashback) : "None"],
     ["Total payable", inr(total)],
   ];
 
@@ -28,11 +33,13 @@ export function ConfirmationPanel({
       </p>
       <dl className="mt-5 divide-y divide-hairline">
         {rows.map(([k, v], i) => (
-          <div key={k} className="flex items-baseline justify-between gap-6 py-2.5">
-            <dt className="text-sm text-muted-foreground">{k}</dt>
+          <div key={k} className="flex min-w-0 items-baseline justify-between gap-3 py-2.5 sm:gap-6">
+            <dt className="shrink-0 text-sm text-muted-foreground">{k}</dt>
             <dd
               className={
-                i === rows.length - 1 ? "font-display text-lg" : "text-sm font-medium text-ink"
+                i === rows.length - 1
+                  ? "break-words text-right font-display text-lg"
+                  : "break-words text-right text-sm font-medium text-ink"
               }
             >
               {v}

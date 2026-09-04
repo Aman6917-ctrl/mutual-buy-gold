@@ -72,6 +72,7 @@ function HomePage() {
       slug: p.slug,
       name: p.name,
       startingPrice: p.startingPrice,
+      startingEmi: p.startingEmi,
       imageSrc: p.thumbnail,
     }));
   const catalogueCards = catalog.filter((p) => p.placement === "catalogue");
@@ -109,9 +110,15 @@ function HomePage() {
           >
             <h2 className="font-display text-2xl">Everything you can buy on a fund-backed EMI</h2>
             <div className="mt-8 grid gap-5 sm:grid-cols-2">
-              {catalogueCards.map((p) => (
-                <ProductCard key={p.slug} product={p} />
-              ))}
+              {catalogueCards.length ? (
+                catalogueCards.map((p) => (
+                  <ProductCard key={p.slug} product={p} />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground sm:col-span-2">
+                  No catalogue products are available yet.
+                </p>
+              )}
             </div>
           </section>
         </>

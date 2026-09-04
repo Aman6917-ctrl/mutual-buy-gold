@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
-import { bestValueTenure as pickBestValueTenure, inr, productQuery } from "@/lib/api";
+import { ApiError, bestValueTenure as pickBestValueTenure, inr, mediaUrl, productQuery } from "@/lib/api";
 
 import { SiteHeader } from "@/components/SiteHeader";
 import { VariantSelector } from "@/components/VariantSelector";
@@ -35,7 +35,7 @@ export const Route = createFileRoute("/products/$slug")({
 
 function ProductDetailPage() {
   const { slug } = Route.useParams();
-  const { data, isPending, isError, refetch } = useQuery(productQuery(slug));
+  const { data, isPending, isError, error, refetch } = useQuery(productQuery(slug));
 
   const [variantId, setVariantId] = useState<string | null>(null);
   const [selectedTenure, setSelectedTenure] = useState<number | null>(null);
@@ -54,11 +54,27 @@ function ProductDetailPage() {
   );
 
   if (isError) {
+    const missing = error instanceof ApiError && error.status === 404;
     return (
       <main>
         <SiteHeader />
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8">
-          <ErrorState onRetry={() => refetch()} />
+          {missing ? (
+            <div className="hairline bg-card p-8">
+              <h2 className="font-display text-2xl">We couldn't find that product</h2>
+              <p className="mt-2 max-w-md text-sm text-muted-foreground">
+                The link may be out of date. Browse the catalogue to pick another device.
+              </p>
+              <Link
+                to="/"
+                className="mt-5 inline-flex rounded-full bg-forest px-5 py-2.5 text-sm text-primary-foreground"
+              >
+                Back to catalogue
+              </Link>
+            </div>
+          ) : (
+            <ErrorState onRetry={() => refetch()} />
+          )}
         </div>
       </main>
     );
@@ -116,7 +132,7 @@ function ProductDetailPage() {
         <div>
           <div className="overflow-hidden rounded-2xl bg-surface">
             <img
-              src={variant.images[0]}
+              src={mediaUrl(variant.images[0])}
               alt={`${data.name} in ${variant.label}`}
               width={1024}
               height={1024}
@@ -139,7 +155,7 @@ function ProductDetailPage() {
                   ].join(" ")}
                 >
                   <img
-                    src={v.images[0]}
+                    src={mediaUrl(v.images[0])}
                     alt=""
                     loading="lazy"
                     className="aspect-square w-full object-cover"
@@ -150,7 +166,7 @@ function ProductDetailPage() {
           ) : null}
 
           <div className="mt-8">
-            <h1 className="font-display text-3xl leading-tight">{data.name}</h1>
+            <h1 className="font-display text-3xl leading-tight break-words">{data.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">{data.brand}</p>
           </div>
 
@@ -168,7 +184,7 @@ function ProductDetailPage() {
         {/* RIGHT */}
         <div>
           <div className="flex flex-wrap items-end gap-x-4 gap-y-2">
-            <span className="font-display text-4xl">{inr(variant.price)}</span>
+            <span className="font-display text-3xl sm:text-4xl">{inr(variant.price)}</span>
             {discount > 0 ? (
               <>
                 <span className="text-sm text-muted-foreground line-through">
@@ -188,18 +204,24 @@ function ProductDetailPage() {
             </p>
 
             <div className="mt-6 space-y-3">
-              {variant.emiPlans.map((plan) => (
-                <EMIPlanRow
-                  key={plan.tenureMonths}
-                  plan={plan}
-                  selected={plan.tenureMonths === selectedTenure}
-                  bestValue={plan.tenureMonths === bestValueTenure}
-                  onSelect={() => {
-                    setSelectedTenure(plan.tenureMonths);
-                    setConfirmed(false);
-                  }}
-                />
-              ))}
+              {variant.emiPlans.length ? (
+                variant.emiPlans.map((plan) => (
+                  <EMIPlanRow
+                    key={plan.tenureMonths}
+                    plan={plan}
+                    selected={plan.tenureMonths === selectedTenure}
+                    bestValue={plan.tenureMonths === bestValueTenure}
+                    onSelect={() => {
+                      setSelectedTenure(plan.tenureMonths);
+                      setConfirmed(false);
+                    }}
+                  />
+                ))
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  No EMI plans are available for this variant yet.
+                </p>
+              )}
             </div>
 
             <button

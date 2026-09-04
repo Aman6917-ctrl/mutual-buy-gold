@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { inr } from "@/lib/api";
+import { inr, mediaUrl } from "@/lib/api";
 
 export type HeroTile = {
   slug: string;
   name: string;
   startingPrice: number;
+  startingEmi?: number;
   imageSrc: string;
 };
 
@@ -41,7 +42,7 @@ export function Hero({ featured }: { featured: HeroTile[] }) {
               style={{ animationDelay: `${120 + i * 110}ms` }}
             >
               <img
-                src={p.imageSrc}
+                src={mediaUrl(p.imageSrc)}
                 alt={`${p.name} product shot`}
                 width={1024}
                 height={1024}
@@ -53,7 +54,7 @@ export function Hero({ featured }: { featured: HeroTile[] }) {
                 <div className="mt-0.5 flex items-baseline gap-2 text-paper/85">
                   <span className="text-xs">EMI from</span>
                   <span className="font-display text-sm text-gold">
-                    {inr(Math.round(p.startingPrice / 24))}/mo
+                    {inr(p.startingEmi ?? Math.round(p.startingPrice / 24))}/mo
                   </span>
                 </div>
               </div>
